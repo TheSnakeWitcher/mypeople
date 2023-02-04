@@ -37,13 +37,33 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
 
         Some(("add", sub_matches)) => {
-            let name = sub_matches.get_one::<String>("name").unwrap();
-            db::queries::insert_contact(&mut conn, name.as_str(), None).await?;
+            let names = sub_matches
+                .get_many::<String>("name")
+                .into_iter()
+                .flatten()
+                .collect::<Vec<&String>>();
+
+            if names.len() == 1 {
+                db::queries::insert_contact(&mut conn, names[0].as_str(), None).await?;
+            } else {
+                db::queries::insert_contacts(&mut conn, names).await?;
+            }
+
         }
 
         Some(("rm", sub_matches)) => {
-            let name = sub_matches.get_one::<String>("name").unwrap();
-            db::queries::remove_contact(&mut conn, name.as_str()).await?;
+            let names = sub_matches
+                .get_many::<String>("name")
+                .into_iter()
+                .flatten()
+                .collect::<Vec<&String>>();
+
+            if names.len() == 1 {
+                db::queries::remove_contact(&mut conn, names[0].as_str()).await?;
+            } else {
+                db::queries::remove_contacts(&mut conn, names).await?;
+            }
+
         }
 
         Some(("config", sub_matches)) => {
@@ -62,7 +82,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             todo!()
         }
 
-        _ => unreachable!(), // If all subcommands are defined above, anything else is unreachabe!()
+        _ => unreachable!()
     }
 
     Ok(())

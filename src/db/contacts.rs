@@ -30,13 +30,13 @@ pub async fn get_contacts(
     conn: &mut SqliteConnection,
     names: Vec<&String>,
 ) -> Result<Vec<Contact>, Error> {
-    let mut contacts : Vec<Contact> = Vec::with_capacity(names.len())  ;
+    let mut contacts: Vec<Contact> = Vec::with_capacity(names.len());
     for name in names {
-        let contact = get_contact(conn, &name).await? ;
-        contacts.push(contact) ;
+        let contact = get_contact(conn, &name).await?;
+        contacts.push(contact);
     }
 
-    return Ok(contacts)
+    return Ok(contacts);
 }
 
 pub async fn get_contact(conn: &mut SqliteConnection, name: &str) -> Result<Contact, Error> {
@@ -77,6 +77,19 @@ pub async fn insert_contact(
     return Ok(output);
 }
 
+pub async fn insert_contacts(
+    conn: &mut SqliteConnection,
+    names: Vec<&String>,
+) -> Result<Vec<SqliteQueryResult>, Error> {
+    let mut results: Vec<SqliteQueryResult> = Vec::with_capacity(names.len());
+    for name in names {
+        let result = insert_contact(conn, &name, None).await?;
+        results.push(result);
+    }
+
+    return Ok(results);
+}
+
 pub async fn remove_contact(
     conn: &mut SqliteConnection,
     name: &str,
@@ -86,4 +99,17 @@ pub async fn remove_contact(
         .await?;
 
     Ok(output)
+}
+
+pub async fn remove_contacts(
+    conn: &mut SqliteConnection,
+    names: Vec<&String>,
+) -> Result<Vec<SqliteQueryResult>, Error> {
+    let mut results: Vec<SqliteQueryResult> = Vec::with_capacity(names.len());
+    for name in names {
+        let result = remove_contact(conn, &name).await?;
+        results.push(result);
+    }
+
+    return Ok(results);
 }
