@@ -1,7 +1,9 @@
 use clap::{Arg, ArgAction};
 
 pub fn name() -> Arg {
-    Arg::new("name").num_args(0..).action(ArgAction::Set)
+    Arg::new("name")
+        .num_args(0..)
+        .action(ArgAction::Set)
 }
 
 pub fn pic() -> Arg {
