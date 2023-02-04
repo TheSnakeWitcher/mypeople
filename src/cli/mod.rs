@@ -1,5 +1,5 @@
-mod args;
 mod add;
+mod args;
 mod ls;
 mod rm;
 
@@ -17,6 +17,5 @@ pub fn new() -> Command {
         .allow_external_subcommands(true)
         .subcommand(ls::new())
         .subcommand(add::new())
+        .subcommand(rm::new())
 }
-
-
