@@ -37,11 +37,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
 
         Some(("add", sub_matches)) => {
-            todo!()
+            let name = sub_matches.get_one::<String>("name").unwrap();
+            db::queries::insert_contact(&mut conn, name.as_str(), None).await?;
         }
 
         Some(("rm", sub_matches)) => {
-            todo!()
+            let name = sub_matches.get_one::<String>("name").unwrap();
+            db::queries::remove_contact(&mut conn, name.as_str()).await?;
         }
 
         Some(("config", sub_matches)) => {
