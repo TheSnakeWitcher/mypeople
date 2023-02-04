@@ -1,0 +1,8 @@
+# directories
+target/
+
+# files
+.envrc
+
+# regular expressions
+
