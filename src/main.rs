@@ -64,20 +64,28 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 for arg in ids.iter() {
                     let val = sub_matches.get_one::<String>(arg).unwrap().to_string();
                     match arg.clone() {
-                        "groups" => {
-                            if let Err(error) = db::queries::insert_group(&mut conn,name,&val).await {
-                                println!("failed to add groups of contact {}\n error: {}",&name,error) ;
+                        "pic" => {
+                            if let Err(error) = db::queries::insert_pic(&mut conn, name, &val).await
+                            {
+                                println!(
+                                    "failed to set pic of contact {}\n error: {}",
+                                    &name, error
+                                );
                             };
                         }
-                        //"emails" => {
-                        //    if let Err(error) = db::queries::insert_group(&mut conn,name,arg).await {
-                        //        println!("failed to add groups of contact {}\n error: {}",&name,error) ;
-                        //    };
-                        //}
-                        _ => unreachable!() 
+                        "groups" => {
+                            if let Err(error) =
+                                db::queries::insert_group(&mut conn, name, &val).await
+                            {
+                                println!(
+                                    "failed to add groups of contact {}\n error: {}",
+                                    &name, error
+                                );
+                            };
+                        }
+                        _ => unreachable!(),
                     }
                 }
-
             }
         }
 
@@ -91,7 +99,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             for name in names.iter() {
                 db::queries::remove_contact(&mut conn, name).await?;
             }
-
         }
 
         Some(("config", sub_matches)) => {
