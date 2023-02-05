@@ -1,10 +1,12 @@
 pub mod cli;
 pub mod db;
+pub mod dispatcher;
 
-pub use sqlx::{
+use sqlx::{
     sqlite::{SqliteConnection, SqliteRow},
     Connection,
 };
+use std::collections::HashMap;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -43,12 +45,40 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .flatten()
                 .collect::<Vec<&String>>();
 
-            if names.len() == 1 {
-                db::queries::insert_contact(&mut conn, names[0].as_str(), None).await?;
-            } else {
-                db::queries::insert_contacts(&mut conn, names).await?;
-            }
+            for name in names.iter() {
+                if db::queries::get_contact(&mut conn, name).await.is_err() {
+                    db::queries::insert_contact(&mut conn, name, None).await?;
+                }
 
+                let ids = sub_matches
+                    .ids()
+                    .filter_map(|id| {
+                        if id.as_str() != "name" {
+                            Some(id.as_str())
+                        } else {
+                            None
+                        }
+                    })
+                    .collect::<Vec<&str>>();
+
+                for arg in ids.iter() {
+                    let val = sub_matches.get_one::<String>(arg).unwrap().to_string();
+                    match arg.clone() {
+                        "groups" => {
+                            if let Err(error) = db::queries::insert_group(&mut conn,name,arg).await {
+                                println!("failed to add groups of contact {}\n error: {}",&name,error) ;
+                            };
+                        }
+                        //"emails" => {
+                        //    if let Err(error) = db::queries::insert_group(&mut conn,name,arg).await {
+                        //        println!("failed to add groups of contact {}\n error: {}",&name,error) ;
+                        //    };
+                        //}
+                        _ => unreachable!() 
+                    }
+                }
+
+            }
         }
 
         Some(("rm", sub_matches)) => {
@@ -58,10 +88,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .flatten()
                 .collect::<Vec<&String>>();
 
-            if names.len() == 1 {
-                db::queries::remove_contact(&mut conn, names[0].as_str()).await?;
-            } else {
-                db::queries::remove_contacts(&mut conn, names).await?;
+            for name in names.iter() {
+                db::queries::remove_contact(&mut conn, name).await?;
             }
 
         }
@@ -82,7 +110,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             todo!()
         }
 
-        _ => unreachable!()
+        _ => unreachable!(),
     }
 
     Ok(())
