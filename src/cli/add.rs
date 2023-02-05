@@ -5,4 +5,5 @@ pub fn new() -> Command {
     Command::new("add")
         .arg_required_else_help(true)
         .arg(args::name())
+        .arg(args::groups())
 }
