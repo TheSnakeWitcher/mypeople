@@ -1,9 +1,10 @@
 use super::args;
-use clap::{Arg, ArgAction, Command};
+use clap::Command;
 
 pub fn new() -> Command {
     Command::new("add")
         .arg_required_else_help(true)
         .arg(args::name())
+        .arg(args::pic())
         .arg(args::groups())
 }
