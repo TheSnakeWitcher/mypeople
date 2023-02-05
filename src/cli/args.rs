@@ -1,9 +1,7 @@
 use clap::{Arg, ArgAction};
 
 pub fn name() -> Arg {
-    Arg::new("name")
-        .num_args(0..)
-        .action(ArgAction::Set)
+    Arg::new("name").num_args(0..).action(ArgAction::Set)
 }
 
 pub fn pic() -> Arg {
@@ -24,25 +22,29 @@ pub fn no_groups() -> Arg {
 }
 
 pub fn phones() -> Arg {
-    Arg::new("phone")
+    Arg::new("phones")
         .short('p')
-        .long("phone")
+        .long("phones")
         .action(ArgAction::Set)
 }
 
 pub fn no_phones() -> Arg {
-    Arg::new("no-phone").long("no-phone").action(ArgAction::Set)
-}
-
-pub fn email() -> Arg {
-    Arg::new("email")
-        .short('e')
-        .long("email")
+    Arg::new("no-phones")
+        .long("no-phones")
         .action(ArgAction::Set)
 }
 
-pub fn no_email() -> Arg {
-    Arg::new("no-email").long("no-email").action(ArgAction::Set)
+pub fn emails() -> Arg {
+    Arg::new("emails")
+        .short('e')
+        .long("emails")
+        .action(ArgAction::Set)
+}
+
+pub fn no_emails() -> Arg {
+    Arg::new("no-emails")
+        .long("no-emails")
+        .action(ArgAction::Set)
 }
 
 pub fn social_nets() -> Arg {
@@ -55,6 +57,13 @@ pub fn social_nets() -> Arg {
 pub fn no_social_nets() -> Arg {
     Arg::new("no-social_nets")
         .long("no-social-nets")
+        .action(ArgAction::Set)
+}
+
+pub fn wallets() -> Arg {
+    Arg::new("wallets")
+        .short('w')
+        .long("wallets")
         .action(ArgAction::Set)
 }
 
