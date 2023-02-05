@@ -97,7 +97,43 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .collect::<Vec<&String>>();
 
             for name in names.iter() {
-                db::queries::remove_contact(&mut conn, name).await?;
+                if let Err(err) = db::queries::get_contact(&mut conn, name).await {
+                    println!("contact not found");
+                    continue;
+                }
+
+                if !sub_matches.args_present() {
+                    db::queries::remove_contact(&mut conn, name).await?;
+                    continue;
+                }
+
+                let ids = sub_matches
+                    .ids()
+                    .filter_map(|id| {
+                        if id.as_str() != "name" {
+                            Some(id.as_str())
+                        } else {
+                            None
+                        }
+                    })
+                    .collect::<Vec<&str>>();
+
+                for arg in ids.iter() {
+                    let val = sub_matches.get_one::<String>(arg).unwrap().to_string();
+                    match arg.clone() {
+                        "groups" => {
+                            if let Err(error) =
+                                db::queries::remove_group(&mut conn, name, &val).await
+                            {
+                                println!(
+                                    "failed to add groups of contact {}\n error: {}",
+                                    &name, error
+                                );
+                            };
+                        }
+                        _ => unreachable!(),
+                    }
+                }
             }
         }
 
