@@ -6,7 +6,6 @@ use sqlx::{
     sqlite::{SqliteConnection, SqliteRow},
     Connection,
 };
-use std::collections::HashMap;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -21,20 +20,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             if !sub_matches.args_present() {
                 let data = db::queries::get_all_contacts(&mut conn).await?;
                 println!("{:#?}", data);
-            } else {
-                let names = sub_matches
-                    .get_many::<String>("name")
-                    .into_iter()
-                    .flatten()
-                    .collect::<Vec<&String>>();
+            }
 
-                if names.len() == 1 {
-                    let data = db::queries::get_contact(&mut conn, &names[0]).await?;
-                    println!("{:#?}", data);
-                } else {
-                    let data = db::queries::get_contacts(&mut conn, names).await?;
-                    println!("{:#?}", data);
-                }
+            let names = sub_matches
+                .get_many::<String>("name")
+                .into_iter()
+                .flatten()
+                .collect::<Vec<&String>>();
+
+            for name in names {
+                let data = db::queries::get_contact(&mut conn, name).await?;
+                println!("{:#?}", data);
             }
         }
 
