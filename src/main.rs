@@ -65,7 +65,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     let val = sub_matches.get_one::<String>(arg).unwrap().to_string();
                     match arg.clone() {
                         "groups" => {
-                            if let Err(error) = db::queries::insert_group(&mut conn,name,arg).await {
+                            if let Err(error) = db::queries::insert_group(&mut conn,name,&val).await {
                                 println!("failed to add groups of contact {}\n error: {}",&name,error) ;
                             };
                         }
