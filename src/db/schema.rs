@@ -1,9 +1,9 @@
-#[derive(Debug,sqlx::FromRow)]
+#[derive(Debug, sqlx::FromRow)]
 pub struct Contact {
     pub id: i64,
     pub name: String,
     pub pic: String,
-    pub groups: String,
+    pub groups: Vec<String>,
     pub phones: String,
     pub emails: String,
     pub social_nets: String,
