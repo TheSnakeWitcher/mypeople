@@ -15,8 +15,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     match matches.subcommand() {
         Some(("ls", sub_matches)) => {
             if !sub_matches.args_present() {
-                let data = db::queries::get_all_contacts(&mut conn).await?;
-                println!("{:#?}", data);
+                let contacts = db::queries::get_all_contacts(&mut conn).await?;
+                println!("{:#?}", contacts);
+                return Ok(());
             }
 
             let names = sub_matches
@@ -26,8 +27,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .collect::<Vec<&String>>();
 
             for name in names {
-                let data = db::queries::get_contact(&mut conn, name).await?;
-                println!("{:#?}", data);
+                let contact = db::queries::get_contact(&mut conn, name).await?;
+                println!("{:#?}", contact);
             }
         }
 
@@ -115,12 +116,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     let val = sub_matches.get_one::<String>(arg).unwrap().to_string();
                     match arg.clone() {
                         "groups" => {
-                            if let Err(error) =
-                                db::queries::remove_group(&mut conn, name, &val).await
+                            if let Err(err) = db::queries::remove_group(&mut conn, name, &val).await
                             {
                                 println!(
                                     "failed to add groups of contact {}\n error: {}",
-                                    &name, error
+                                    &name, err
                                 );
                             };
                         }
