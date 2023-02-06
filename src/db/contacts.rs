@@ -66,7 +66,7 @@ pub async fn insert_contact(
 ) -> Result<SqliteQueryResult, Error> {
     let output = query!("
         INSERT INTO contacts(id,name, pic, groups, emails, phones, social_nets, wallets, locations, events, notes)
-        VALUES(NULL,?,'','[\"all\"]','{}','{}','{}','{}','{}','{}','[]') ;",name
+        VALUES(NULL,?,'','[\"all\"]','{}','{}','{}','{}','{}','{}','') ;",name
     )
     .execute(conn)
     .await? ;
