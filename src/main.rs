@@ -96,11 +96,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     continue;
                 }
 
-                if !sub_matches.args_present() {
-                    db::queries::remove_contact(&mut conn, name).await?;
-                    continue;
-                }
-
                 let ids = sub_matches
                     .ids()
                     .filter_map(|id| {
@@ -111,6 +106,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         }
                     })
                     .collect::<Vec<&str>>();
+
+                
+                if ids.is_empty() {
+                    db::queries::remove_contact(&mut conn, name).await?;
+                    continue;
+                }
+
 
                 for arg in ids.iter() {
                     let val = sub_matches.get_one::<String>(arg).unwrap().to_string();
