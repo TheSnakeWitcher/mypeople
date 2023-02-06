@@ -2,10 +2,7 @@ pub mod cli;
 pub mod db;
 pub mod dispatcher;
 
-use sqlx::{
-    sqlite::{SqliteConnection, SqliteRow},
-    Connection,
-};
+use sqlx::{Connection, SqliteConnection};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -43,7 +40,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             for name in names.iter() {
                 if db::queries::get_contact(&mut conn, name).await.is_err() {
-                    db::queries::insert_contact(&mut conn, name, None).await?;
+                    db::queries::insert_contact(&mut conn, name).await?;
                 }
 
                 let ids = sub_matches

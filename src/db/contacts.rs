@@ -63,13 +63,10 @@ pub async fn get_contact(conn: &mut SqliteConnection, name: &str) -> Result<Cont
 pub async fn insert_contact(
     conn: &mut SqliteConnection,
     name: &str,
-    pic: Option<&str>,
 ) -> Result<SqliteQueryResult, Error> {
-    let pic = pic.unwrap_or(" ");
-
     let output = query!("
         INSERT INTO contacts(id,name, pic, groups, emails, phones, social_nets, wallets, locations, events, notes)
-        VALUES(NULL,?,?,'[\"all\"]','{}','{}','{}','{}','{}','{}','[]') ;",name,pic
+        VALUES(NULL,?,'','[\"all\"]','{}','{}','{}','{}','{}','{}','[]') ;",name
     )
     .execute(conn)
     .await? ;
@@ -83,7 +80,7 @@ pub async fn insert_contacts(
 ) -> Result<Vec<SqliteQueryResult>, Error> {
     let mut results: Vec<SqliteQueryResult> = Vec::with_capacity(names.len());
     for name in names {
-        let result = insert_contact(conn, &name, None).await?;
+        let result = insert_contact(conn, &name).await?;
         results.push(result);
     }
 
