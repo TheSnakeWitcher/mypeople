@@ -26,10 +26,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .flatten()
                 .collect::<Vec<&String>>();
 
-            for name in names {
-                let contact = db::queries::get_contact(&mut conn, name).await?;
-                println!("{:#?}", contact);
-            }
+            let contacts = db::queries::get_contacts(&mut conn,names).await? ;
+            println!("{:#?}", contacts);
         }
 
         Some(("add", sub_matches)) => {
