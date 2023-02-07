@@ -1,6 +1,6 @@
 pub mod cli;
 pub mod db;
-pub mod dispatcher;
+pub mod dispatchers;
 
 use sqlx::{Connection, SqliteConnection};
 
@@ -44,42 +44,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     db::queries::insert_contact(&mut conn, name).await?;
                 }
 
-                let ids = sub_matches
-                    .ids()
-                    .filter_map(|id| {
-                        if id.as_str() != "name" {
-                            Some(id.as_str())
-                        } else {
-                            None
-                        }
-                    })
-                    .collect::<Vec<&str>>();
-
-                for arg in ids.iter() {
-                    let val = sub_matches.get_one::<String>(arg).unwrap().to_string();
-                    match arg.clone() {
-                        "pic" => {
-                            if let Err(error) = db::queries::insert_pic(&mut conn, name, &val).await
-                            {
-                                println!(
-                                    "failed to set pic of contact {}\n error: {}",
-                                    &name, error
-                                );
-                            };
-                        }
-                        "groups" => {
-                            if let Err(error) =
-                                db::queries::insert_group(&mut conn, name, &val).await
-                            {
-                                println!(
-                                    "failed to add groups of contact {}\n error: {}",
-                                    &name, error
-                                );
-                            };
-                        }
-                        _ => unreachable!(),
-                    }
-                }
+                dispatchers::add_cmd_dispatcher(&mut conn,name,sub_matches).await? ;
             }
         }
 
