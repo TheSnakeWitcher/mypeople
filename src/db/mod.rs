@@ -1,5 +1,6 @@
 mod aux;
 mod contacts;
+mod emails;
 mod groups;
 mod phones;
 mod pic;

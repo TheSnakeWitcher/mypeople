@@ -8,4 +8,5 @@ pub fn new() -> Command {
         .arg(args::pic())
         .arg(args::groups())
         .arg(args::phones())
+        .arg(args::emails())
 }

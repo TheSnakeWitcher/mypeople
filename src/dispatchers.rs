@@ -84,6 +84,20 @@ pub async fn add_cmd_dispatcher(
                 };
             }
 
+            "emails" => {
+                let Ok(insert_val) = try_parse(&mut val) else {
+                    println!("invalid format of emails args passed");
+                    return Ok(())
+                } ;
+
+                if let Err(error) = db::queries::insert_emails(conn, name, &insert_val).await {
+                    println!(
+                        "failed to add emails of contact {}\n error: {}",
+                        &name, error
+                    );
+                };
+            }
+
             _ => unreachable!(),
         }
     }
@@ -125,6 +139,15 @@ pub async fn rm_cmd_dispatcher(
                 if let Err(error) = db::queries::remove_phone(conn, name, &val).await {
                     println!(
                         "failed to remove phone of contact {}\n error: {}",
+                        &name, error
+                    );
+                };
+            }
+
+            "emails" => {
+                if let Err(error) = db::queries::remove_email(conn, name, &val).await {
+                    println!(
+                        "failed to remove email of contact {}\n error: {}",
                         &name, error
                     );
                 };
