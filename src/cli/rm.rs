@@ -9,4 +9,5 @@ pub fn new() -> Command {
         .arg(args::phones())
         .arg(args::emails())
         .arg(args::social_nets())
+        .arg(args::wallets())
 }
