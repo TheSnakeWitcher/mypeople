@@ -7,4 +7,5 @@ pub fn new() -> Command {
         .arg(args::name())
         .arg(args::groups())
         .arg(args::phones())
+        .arg(args::emails())
 }
