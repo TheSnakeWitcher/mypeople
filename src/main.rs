@@ -35,7 +35,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .get_many::<String>("name")
                 .into_iter()
                 .flatten()
-                .collect::<Vec<&String>>();
+                .collect::<Vec<&String>>() ;
+
+            if names.is_empty() {
+                println!("names must be passed");
+                return Ok(())
+            }
 
             for name in names.iter() {
                 if db::queries::get_contact(&mut conn, name).await.is_err() {
@@ -52,6 +57,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .into_iter()
                 .flatten()
                 .collect::<Vec<&String>>();
+
+            if names.is_empty() {
+                println!("names must be passed");
+                return Ok(())
+            }
 
             for name in names.iter() {
                 if let Err(err) = db::queries::get_contact(&mut conn, name).await {
