@@ -48,7 +48,7 @@ pub async fn insert_wallet(
         "UPDATE contacts SET wallets = json_insert(wallets,?,?)
         WHERE name = ? ;",
         key,
-        phone_val,
+        wallet_val,
         name
     )
     .execute(conn)
