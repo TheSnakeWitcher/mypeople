@@ -7,4 +7,4 @@ mod pic;
 pub mod queries;
 pub mod schema;
 mod social_nets;
-
+mod wallets;

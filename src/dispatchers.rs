@@ -112,6 +112,20 @@ pub async fn add_cmd_dispatcher(
                 };
             }
 
+            "wallets" => {
+                let Ok(insert_val) = try_parse(&mut val) else {
+                    println!("invalid format of wallets args passed");
+                    return Ok(())
+                } ;
+
+                if let Err(error) = db::queries::insert_wallets(conn, name, &insert_val).await {
+                    println!(
+                        "failed to add wallets of contact {}\n error: {}",
+                        &name, error
+                    );
+                };
+            }
+
             _ => unreachable!(),
         }
     }
@@ -170,7 +184,16 @@ pub async fn rm_cmd_dispatcher(
             "social_nets" => {
                 if let Err(error) = db::queries::remove_social_net(conn, name, &val).await {
                     println!(
-                        "failed to remove email of contact {}\n error: {}",
+                        "failed to remove social net of contact {}\n error: {}",
+                        &name, error
+                    );
+                };
+            }
+
+            "wallets" => {
+                if let Err(error) = db::queries::remove_wallet(conn, name, &val).await {
+                    println!(
+                        "failed to remove wallet of contact {}\n error: {}",
                         &name, error
                     );
                 };
