@@ -3,13 +3,13 @@ pub mod db;
 pub mod dispatchers;
 
 use sqlx::{Connection, SqliteConnection};
+use std::path::Path;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn = SqliteConnection::connect(env!("DATABASE_URL_FILE"))
         .await
         .unwrap();
-
     let matches = cli::new().get_matches();
 
     match matches.subcommand() {
@@ -26,7 +26,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .flatten()
                 .collect::<Vec<&String>>();
 
-            let contacts = db::queries::get_contacts(&mut conn,names).await? ;
+            let contacts = db::queries::get_contacts(&mut conn, names).await?;
             println!("{:#?}", contacts);
         }
 
@@ -35,11 +35,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .get_many::<String>("name")
                 .into_iter()
                 .flatten()
-                .collect::<Vec<&String>>() ;
+                .collect::<Vec<&String>>();
 
             if names.is_empty() {
                 println!("names must be passed");
-                return Ok(())
+                return Ok(());
             }
 
             for name in names.iter() {
@@ -47,7 +47,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     db::queries::insert_contact(&mut conn, name).await?;
                 }
 
-                dispatchers::add_cmd_dispatcher(&mut conn,name,sub_matches).await? ;
+                dispatchers::add_cmd_dispatcher(&mut conn, name, sub_matches).await?;
             }
         }
 
@@ -60,7 +60,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             if names.is_empty() {
                 println!("names must be passed");
-                return Ok(())
+                return Ok(());
             }
 
             for name in names.iter() {
@@ -68,7 +68,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     println!("contact not found");
                     continue;
                 }
-                dispatchers::rm_cmd_dispatcher(&mut conn,name,&sub_matches).await? ;
+                dispatchers::rm_cmd_dispatcher(&mut conn, name, &sub_matches).await?;
             }
         }
 
@@ -85,7 +85,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
 
         Some(("init", sub_matches)) => {
-            todo!()
+            if !sub_matches.args_present() {
+                db::init(None).await;
+                return Ok(());
+            }
+
+            let Some(path_string) = sub_matches.get_one::<String>("path") else {
+                println!("error parsing path input") ;
+                return Ok(())
+            } ;
+            let path = Path::new(path_string);
+
+            db::init(Some(&path)).await;
         }
 
         _ => unreachable!(),
