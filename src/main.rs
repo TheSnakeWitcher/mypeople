@@ -4,6 +4,7 @@ pub mod dispatchers;
 
 use sqlx::{Connection, SqliteConnection};
 use std::path::Path;
+use serde_json;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -27,7 +28,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .collect::<Vec<&String>>();
 
             let contacts = db::queries::get_contacts(&mut conn, names).await?;
-            println!("{:#?}", contacts);
+            for contact in contacts.iter() {
+                if let Ok(output) = serde_json::to_string(contact) {
+                    println!("{}",output);
+                }
+            }
+            return Ok(())
         }
 
         Some(("add", sub_matches)) => {
