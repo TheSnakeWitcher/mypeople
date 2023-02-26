@@ -1,4 +1,7 @@
-#[derive(Debug, sqlx::FromRow)]
+use serde::Serialize;
+use std::collections::HashMap;
+
+#[derive(Debug, Serialize, sqlx::FromRow)]
 pub struct Contact {
     pub id: i64,
     pub name: String,
@@ -7,7 +10,7 @@ pub struct Contact {
     pub phones: String,
     pub emails: String,
     pub social_nets: String,
-    pub wallets: String,
+    pub wallets: HashMap<String, String>,
     pub locations: String,
     pub events: String,
     pub notes: String,
