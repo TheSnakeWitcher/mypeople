@@ -2,9 +2,9 @@ pub mod cli;
 pub mod db;
 pub mod dispatchers;
 
-use sqlx::{Connection, SqliteConnection};
-use std::path::Path;
 use serde_json;
+use sqlx::{Connection, SqliteConnection};
+use std::{fs::File, io::Write, path::Path};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -30,10 +30,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let contacts = db::queries::get_contacts(&mut conn, names).await?;
             for contact in contacts.iter() {
                 if let Ok(output) = serde_json::to_string(contact) {
-                    println!("{}",output);
+                    println!("{}", output);
                 }
             }
-            return Ok(())
+            return Ok(());
         }
 
         Some(("add", sub_matches)) => {
@@ -78,18 +78,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
 
-        Some(("config", sub_matches)) => {
-            todo!()
-        }
-
-        Some(("import", sub_matches)) => {
-            todo!()
-        }
-
-        Some(("export", sub_matches)) => {
-            todo!()
-        }
-
         Some(("init", sub_matches)) => {
             if !sub_matches.args_present() {
                 db::init(None).await;
@@ -103,6 +91,39 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let path = Path::new(path_string);
 
             db::init(Some(&path)).await;
+        }
+
+        Some(("import", sub_matches)) => {
+            todo!()
+        }
+
+        Some(("export", sub_matches)) => {
+            let Some(path_string) = sub_matches.get_one::<String>("path") else {
+                println!("error parsing path") ;
+                return Ok(())
+            } ;
+
+            let Ok(mut file) = File::create(Path::new(path_string)) else {
+                println!("error opening file") ;
+                return Ok(())
+            };
+
+            let Ok(data) = serde_json::to_string_pretty(
+                &db::queries::get_all_contacts(&mut conn).await?
+            ) else {
+                println!("failed to convert output data");
+                return Ok(())
+            };
+
+            if let Err(err) = file.write_all(&data.as_bytes()) {
+                println!("error writing data to file");
+            };
+
+            return Ok(());
+        }
+
+        Some(("config", sub_matches)) => {
+            todo!()
         }
 
         _ => unreachable!(),

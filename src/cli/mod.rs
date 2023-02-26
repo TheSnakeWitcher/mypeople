@@ -1,5 +1,6 @@
 mod add;
 mod args;
+mod export;
 mod init;
 mod ls;
 mod rm;
@@ -17,6 +18,7 @@ pub fn new() -> Command {
         .arg_required_else_help(true)
         .allow_external_subcommands(true)
         .subcommand(init::new())
+        .subcommand(export::new())
         .subcommand(ls::new())
         .subcommand(add::new())
         .subcommand(rm::new())
