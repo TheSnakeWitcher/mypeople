@@ -1,5 +1,9 @@
 use clap::{Arg, ArgAction};
 
+pub fn path() -> Arg {
+    Arg::new("path").num_args(0..=1).action(ArgAction::Set)
+}
+
 pub fn name() -> Arg {
     Arg::new("name").num_args(0..).action(ArgAction::Set)
 }
