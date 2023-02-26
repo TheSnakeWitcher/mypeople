@@ -1,5 +1,5 @@
 release:
-	cargo build --release --offline
+	cargo build --release
 
 build:
 	cargo build --offline
