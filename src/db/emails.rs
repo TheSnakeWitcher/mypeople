@@ -1,13 +1,10 @@
 use super::aux::to_sqlite_json_key;
-
 use sqlx::{
     query,
     sqlite::{SqliteConnection, SqliteQueryResult},
     Error,
 };
-
 use std::collections::HashMap;
-
 
 pub async fn insert_emails(
     conn: &mut SqliteConnection,
@@ -31,15 +28,12 @@ pub async fn insert_email(
 ) -> Result<SqliteQueryResult, Error> {
     let key = to_sqlite_json_key(&email_key);
 
-    let output = query!(
-        "UPDATE contacts SET emails = json_insert(emails,?,?)
-        WHERE name = ? ;",
-        key,
-        email_val,
-        name
-    )
-    .execute(conn)
-    .await?;
+    let output = query("UPDATE contacts SET emails = json_insert(emails,?,?) WHERE name = ? ;")
+        .bind(key)
+        .bind(email_val)
+        .bind(name)
+        .execute(conn)
+        .await?;
 
     return Ok(output);
 }
@@ -51,17 +45,11 @@ pub async fn remove_email(
 ) -> Result<SqliteQueryResult, Error> {
     let key = to_sqlite_json_key(&email);
 
-    let output = query!(
-        "
-        UPDATE contacts
-        SET emails = json_remove(emails,?)
-        WHERE name = ? ;
-    ",
-        key,
-        name
-    )
-    .execute(conn)
-    .await?;
+    let output = query(" UPDATE contacts SET emails = json_remove(emails,?) WHERE name = ? ;")
+        .bind(key)
+        .bind(name)
+        .execute(conn)
+        .await?;
 
     return Ok(output);
 }
