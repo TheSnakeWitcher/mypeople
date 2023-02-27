@@ -3,11 +3,23 @@ name = "mypeople"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 clap = "4.0.29"
 serde = { version = "1.0.152", features = ["derive"] }
 serde_json = "1.0.91"
 sqlx = { version = "0.6.2", features = ["sqlite", "json", "time", "uuid", "all", "runtime-tokio-rustls", "runtime-actix-rustls", "macros"] }
 tokio = { version = "1.23.0", features = ["tracing", "full"] }
+
+[profile.dev]
+incremental = true
+
+[profile.test]
+incremental = true
+
+[profile.release]
+incremental = true
+lto = true          # Enable link-time optimization,options: "fat","thin"
+opt-level = 'z'     # Optimize for size
+codegen-units = 1   # Reduce number of codegen units to increase optimizations
+strip = true        # Strip symbols from binary*
+panic = 'abort'     # Abort on panic
