@@ -10,7 +10,11 @@ mod wallets;
 pub mod queries;
 pub mod schema;
 
-use std::{env, path::{Path,PathBuf}, process::Command};
+use std::{
+    env,
+    path::{Path, PathBuf},
+    process::Command,
+};
 
 pub async fn init(path: Option<&Path>) -> Result<(), ()> {
     let cmd: &str = "CREATE TABLE IF NOT EXISTS contacts (
@@ -32,17 +36,13 @@ pub async fn init(path: Option<&Path>) -> Result<(), ()> {
         return Ok(())
     };
 
-    let output = Command::new("sqlite3")
-        .arg(path.unwrap_or(
-            &PathBuf::from_iter([
-                home,
-                String::from(".cache/mypeople/mypeople.db")
-            ])
-        ))
-        .args(["--cmd",cmd])
-        .output() else {
-        return Err(());
-    };
+    let _ = Command::new("sqlite3")
+        .arg(path.unwrap_or(&PathBuf::from_iter([
+            home,
+            String::from(".cache/mypeople/mypeople.db"),
+        ])))
+        .args(["--cmd", cmd])
+        .output();
 
     return Ok(());
 }
