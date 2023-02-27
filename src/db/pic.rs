@@ -9,7 +9,9 @@ pub async fn insert_pic(
     name: &str,
     pic: &str,
 ) -> Result<SqliteQueryResult, Error> {
-    let output = query!("UPDATE contacts SET pic = ? WHERE name = ? ;", pic,name)
+    let output = query("UPDATE contacts SET pic = ? WHERE name = ? ;")
+        .bind(pic)
+        .bind(name)
         .execute(conn)
         .await?;
 
