@@ -1,21 +1,11 @@
 use super::aux::to_sqlite_json_key;
-
 use sqlx::{
     query,
     sqlite::{SqliteConnection, SqliteQueryResult},
     Error,
 };
-
 use std::collections::HashMap;
 
-pub async fn get_phones(conn: &mut SqliteConnection, name: &str) -> Result<String, Error> {
-    let data = query!("SELECT phones FROM contacts WHERE name = ? LIMIT 1 ;", name)
-        .map(|item| item.phones.to_string())
-        .fetch_one(conn)
-        .await?;
-
-    Ok(data)
-}
 
 pub async fn insert_phones(
     conn: &mut SqliteConnection,
@@ -39,15 +29,12 @@ pub async fn insert_phone(
 ) -> Result<SqliteQueryResult, Error> {
     let key = to_sqlite_json_key(&phone_key);
 
-    let output = query!(
-        "UPDATE contacts SET phones = json_insert(phones,?,?)
-        WHERE name = ? ;",
-        key,
-        phone_val,
-        name
-    )
-    .execute(conn)
-    .await?;
+    let output = query("UPDATE contacts SET phones = json_insert(phones,?,?) WHERE name = ? ;")
+        .bind(key)
+        .bind(phone_val)
+        .bind(name)
+        .execute(conn)
+        .await?;
 
     return Ok(output);
 }
@@ -59,17 +46,11 @@ pub async fn remove_phone(
 ) -> Result<SqliteQueryResult, Error> {
     let key = to_sqlite_json_key(&phone);
 
-    let output = query!(
-        "
-        UPDATE contacts
-        SET phones = json_remove(phones,?)
-        WHERE name = ? ;
-    ",
-        key,
-        name
-    )
-    .execute(conn)
-    .await?;
+    let output = query("UPDATE contacts SET phones = json_remove(phones,?) WHERE name = ? ;")
+        .bind(key)
+        .bind(name)
+        .execute(conn)
+        .await?;
 
     return Ok(output);
 }
