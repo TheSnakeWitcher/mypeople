@@ -10,14 +10,12 @@ pub async fn insert_group(
     name: &str,
     group: &str,
 ) -> Result<SqliteQueryResult, Error> {
-    let output = query!(
-        "UPDATE contacts SET groups = json_insert(groups,'$[#]',?)
-        WHERE name = ? ;",
-        group,
-        name
-    )
-    .execute(conn)
-    .await?;
+    let output =
+        query("UPDATE contacts SET groups = json_insert(groups,'$[#]',?) WHERE name = ? ;")
+            .bind(group)
+            .bind(name)
+            .execute(conn)
+            .await?;
 
     return Ok(output);
 }
@@ -27,17 +25,15 @@ pub async fn remove_group(
     name: &str,
     group: &str,
 ) -> Result<SqliteQueryResult, Error> {
-    let output = query!(
-        "
-        UPDATE contacts
+    let output = query(
+        "UPDATE contacts
         SET groups = json_remove(groups,(
                 SELECT fullkey FROM json_each(groups) WHERE value = ?
         ))
-        WHERE name = ? ;
-    ",
-        group,
-        name
+        WHERE name = ? ;",
     )
+    .bind(group)
+    .bind(name)
     .execute(conn)
     .await?;
 
