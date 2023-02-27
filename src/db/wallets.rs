@@ -1,7 +1,7 @@
 use super::aux::to_sqlite_json_key;
 use sqlx::{
     query,
-    sqlite::{SqliteConnection, SqliteQueryResult, SqliteRow},
+    sqlite::{SqliteConnection, SqliteQueryResult},
     Error,
 };
 use std::collections::HashMap;

@@ -1,4 +1,3 @@
-use super::queries::get_contact;
 use sqlx::{
     query,
     sqlite::{SqliteConnection, SqliteQueryResult},

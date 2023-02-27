@@ -1,7 +1,6 @@
 use crate::db;
 use clap::ArgMatches;
 use sqlx::{Error, SqliteConnection};
-use std::collections::HashMap;
 
 pub async fn rm_cmd_dispatcher(
     conn: &mut SqliteConnection,
