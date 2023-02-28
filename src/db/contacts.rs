@@ -49,12 +49,13 @@ pub async fn insert_contact(
     conn: &mut SqliteConnection,
     name: &str,
 ) -> Result<SqliteQueryResult, Error> {
-    let output = query!("
+    let output = query("
         INSERT INTO contacts(id,name, pic, groups, emails, phones, social_nets, wallets, locations, events, notes)
-        VALUES(NULL,?,'','[\"all\"]','{}','{}','{}','{}','{}','{}','') ;",name
-    )
-    .execute(conn)
-    .await? ;
+        VALUES(NULL,?,'','[\"all\"]','{}','{}','{}','{}','{}','{}','') ;
+        ")
+        .bind(name)
+        .execute(conn)
+        .await? ;
 
     return Ok(output);
 }
@@ -76,7 +77,8 @@ pub async fn remove_contact(
     conn: &mut SqliteConnection,
     name: &str,
 ) -> Result<SqliteQueryResult, Error> {
-    let output = query!("DELETE FROM contacts WHERE name = ? ;", name)
+    let output = query("DELETE FROM contacts WHERE name = ? ;")
+        .bind(name)
         .execute(conn)
         .await?;
 
