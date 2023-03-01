@@ -10,13 +10,13 @@ mod wallets;
 pub mod queries;
 pub mod schema;
 
+use super::configuration::Conf;
 use std::{
-    env,
     path::{Path, PathBuf},
     process::Command,
 };
 
-pub async fn init(path: Option<&Path>) -> Result<(), ()> {
+pub async fn init(path: Option<&Path>,conf: &Conf) -> Result<(),()> {
     let cmd: &str = "CREATE TABLE IF NOT EXISTS contacts (
         id          INTEGER PRIMARY KEY NOT NULL,
         name        TEXT NOT NULL,
@@ -31,16 +31,8 @@ pub async fn init(path: Option<&Path>) -> Result<(), ()> {
         notes       TEXT NOT NULL
     ) ;";
 
-    let Ok(home) = env::var("HOME") else {
-        println!("something when wrong when seting default path");
-        return Ok(())
-    };
-
     let _ = Command::new("sqlite3")
-        .arg(path.unwrap_or(&PathBuf::from_iter([
-            home,
-            String::from(".cache/mypeople/mypeople.db"),
-        ])))
+        .arg(path.unwrap_or(&PathBuf::from(conf.dbfile.to_lowercase())))
         .args(["--cmd", cmd])
         .output();
 
