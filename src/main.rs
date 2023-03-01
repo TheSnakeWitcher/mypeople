@@ -1,4 +1,5 @@
 pub mod cli;
+mod configuration;
 pub mod db;
 pub mod dispatchers;
 
@@ -8,11 +9,25 @@ use std::{fs::File, io::Write, path::Path};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut conn = SqliteConnection::connect(env!("DATABASE_URL_FILE"))
-        .await
-        .unwrap();
+    let conf = configuration::init().expect("configuration error");
     let matches = cli::new().get_matches();
 
+    if let Some(sub_matches) = matches.subcommand_matches("init") {
+            if !sub_matches.args_present() {
+                db::init(None,&conf).await;
+                return Ok(());
+            }
+
+            let Some(path_string) = sub_matches.get_one::<String>("path") else {
+                println!("error parsing path input") ;
+                return Ok(())
+            } ;
+            let path = Path::new(path_string);
+
+            db::init(Some(&path),&conf).await;
+    }
+
+    let mut conn = SqliteConnection::connect(&conf.dbfile).await.expect("failed to set db connection");
     match matches.subcommand() {
         Some(("ls", sub_matches)) => {
             if !sub_matches.args_present() {
@@ -26,7 +41,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .into_iter()
                 .flatten()
                 .collect::<Vec<&String>>();
-
             let contacts = db::queries::get_contacts(&mut conn, names).await?;
             for contact in contacts.iter() {
                 if let Ok(output) = serde_json::to_string(contact) {
@@ -78,21 +92,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
 
-        Some(("init", sub_matches)) => {
-            if !sub_matches.args_present() {
-                db::init(None).await;
-                return Ok(());
-            }
-
-            let Some(path_string) = sub_matches.get_one::<String>("path") else {
-                println!("error parsing path input") ;
-                return Ok(())
-            } ;
-            let path = Path::new(path_string);
-
-            db::init(Some(&path)).await;
-        }
-
         Some(("import", sub_matches)) => {
             todo!()
         }
@@ -129,5 +128,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         _ => unreachable!(),
     }
 
+    if let Err(err) = conn.close().await {
+        println!("error closing db");
+    };
     Ok(())
 }
