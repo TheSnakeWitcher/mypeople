@@ -1,7 +1,6 @@
 use config::{self, Config};
 use serde::Deserialize;
 
-const CONFIG_FILE_DEV: &str = "/home/mr-papi/SoftwareCode/Projects/mypeople/mypeople.conf.toml";
 const APP_NAME: &str = "mypeople";
 // config file
 const CONFIG_FILE_DIR: &str = APP_NAME;
