@@ -1,11 +1,11 @@
 # Index
 
-1. Purpose
-2. Usage
-3. Install
-4. Configure
-5. Troubleshooting
-6. License
+1. [Purpose](#Purpose)
+2. [Usage](#Usage)
+3. [Installation](#Installation)
+4. [Configuration](#Configuration)
+5. [Troubleshooting](#Troubleshooting)
+6. [License](#License)
 
 # Purpose
 
@@ -48,7 +48,7 @@ mypeople rm contact_name
 mypeople rm contact_name -e email_label
 ```
 
-# Install
+# Installation 
 
 ### From source
 ```sh

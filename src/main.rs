@@ -13,21 +13,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let matches = cli::new().get_matches();
 
     if let Some(sub_matches) = matches.subcommand_matches("init") {
-            if !sub_matches.args_present() {
-                db::init(None,&conf).await;
-                return Ok(());
-            }
+        if !sub_matches.args_present() {
+            db::init(None, &conf).await;
+            return Ok(());
+        }
 
-            let Some(path_string) = sub_matches.get_one::<String>("path") else {
+        let Some(path_string) = sub_matches.get_one::<String>("path") else {
                 println!("error parsing path input") ;
                 return Ok(())
             } ;
-            let path = Path::new(path_string);
+        let path = Path::new(path_string);
 
-            db::init(Some(&path),&conf).await;
+        db::init(Some(&path), &conf).await;
     }
 
-    let mut conn = SqliteConnection::connect(&conf.dbfile).await.expect("failed to set db connection");
+    let mut conn = SqliteConnection::connect(&conf.dbfile)
+        .await
+        .expect("failed to set db connection");
     match matches.subcommand() {
         Some(("ls", sub_matches)) => {
             if !sub_matches.args_present() {
