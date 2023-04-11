@@ -4,6 +4,7 @@ mod export;
 mod init;
 mod ls;
 mod rm;
+mod config;
 
 pub use clap;
 use clap::Command;
@@ -22,4 +23,5 @@ pub fn new() -> Command {
         .subcommand(ls::new())
         .subcommand(add::new())
         .subcommand(rm::new())
+        .subcommand(config::new())
 }
