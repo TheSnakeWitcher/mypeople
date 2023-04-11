@@ -5,7 +5,10 @@ pub mod dispatchers;
 
 use serde_json;
 use sqlx::{Connection, SqliteConnection};
-use std::{fs::File, io::Write, path::Path};
+use std::{env, fs::File, io::Write, path::Path, process::Command};
+
+const EDITOR: &str = "EDITOR";
+const VISUAL: &str = "VISUAL";
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -124,7 +127,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
 
         Some(("config", sub_matches)) => {
-            todo!()
+            let Ok(editor) = env::var(EDITOR).or(env::var(VISUAL)) else {
+                println!("set $EDITOR or $VISUAL environment variables to edit files");
+                return Ok(())
+            };
+
+            let Ok(status) = Command::new(editor)
+                .arg(conf.user_config_file)
+                .status()
+            else {
+                println!("failed to open user config file");
+                return Ok(())
+            };
+
+            return Ok(());
         }
 
         _ => unreachable!(),
