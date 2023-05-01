@@ -1,5 +1,7 @@
 [package]
 name = "mypeople"
+authors = ["Alejandro Virelles thesnakewitcher@gmail.com"]
+description = "A simple and modern contactbook(addressbook)"
 version = "0.1.0"
 edition = "2021"
 
