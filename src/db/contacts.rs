@@ -1,39 +1,33 @@
-use super::schema::Contact;
+use super::schema::{Contact,Contacts};
 use sqlx::{
     query, query_as,
     sqlite::{SqliteConnection, SqliteQueryResult, SqliteRow},
     Error, FromRow,
 };
 
-pub async fn get_all_contacts(conn: &mut SqliteConnection) -> Result<Vec<Contact>, Error> {
+pub async fn get_all_contacts(conn: &mut SqliteConnection) -> Result<Contacts, Error> {
     let rows = query("SELECT * FROM contacts ORDER BY name ;")
         .map(|item: SqliteRow| Contact::from_row(&item))
         .fetch_all(conn)
         .await?;
     let out = rows
         .into_iter()
-        .filter_map(|item| {
-            if item.is_ok() {
-                Some(item.unwrap())
-            } else {
-                None
-            }
-        })
+        .filter_map(|item| item.ok())
         .collect::<Vec<Contact>>();
-    Ok(out)
+    Ok(Contacts(out))
 }
 
 pub async fn get_contacts(
     conn: &mut SqliteConnection,
     names: Vec<&String>,
-) -> Result<Vec<Contact>, Error> {
+) -> Result<Contacts, Error> {
     let mut contacts: Vec<Contact> = Vec::with_capacity(names.len());
     for name in names {
         let contact = get_contact(conn, &name).await?;
         contacts.push(contact);
     }
 
-    return Ok(contacts);
+    return Ok(Contacts(contacts));
 }
 
 pub async fn get_contact(conn: &mut SqliteConnection, name: &str) -> Result<Contact, Error> {
