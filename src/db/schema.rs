@@ -1,6 +1,25 @@
 use serde::{Deserialize, Serialize};
 use sqlx::{sqlite::SqliteRow, FromRow, Row};
-use std::collections::HashMap;
+use std::{
+    collections::HashMap,
+    fmt::{Display, Formatter},
+};
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Contacts(pub Vec<Contact>);
+
+impl Display for Contacts {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", serde_json::to_string(&self.0).unwrap_or_default())
+    }
+}
+
+// NOTE: check implementation because Iterator is not implemented
+impl Contacts {
+    pub fn iter(&self) -> std::slice::Iter<'_, Contact> {
+        self.0.iter()
+    }
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Contact {
@@ -33,6 +52,12 @@ impl FromRow<'_, SqliteRow> for Contact {
             events: serde_json::from_str(row.try_get("events").unwrap_or_default()).unwrap(),
             notes: row.try_get("notes").unwrap_or_default(),
         })
+    }
+}
+
+impl Display for Contact {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", serde_json::to_string(self).unwrap_or_default())
     }
 }
 
