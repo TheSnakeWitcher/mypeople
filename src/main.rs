@@ -37,7 +37,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Some(("ls", sub_matches)) => {
             if !sub_matches.args_present() {
                 let contacts = db::queries::get_all_contacts(&mut conn).await?;
-                println!("{:#?}", contacts);
+                println!("{}", contacts);
                 return Ok(());
             }
 
@@ -48,9 +48,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .collect::<Vec<&String>>();
             let contacts = db::queries::get_contacts(&mut conn, names).await?;
             for contact in contacts.iter() {
-                if let Ok(output) = serde_json::to_string(contact) {
-                    println!("{}", output);
-                }
+                println!("{}", contact);
             }
             return Ok(());
         }
