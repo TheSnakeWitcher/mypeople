@@ -39,14 +39,14 @@ pub fn init() -> Option<Conf> {
 
     let conf_builder = Config::builder()
         .set_default(DBFILE_KEY, default_dbfile.to_str())
-        .expect("failod to load default config")
+        .expect("failod to load default dbfile from config")
         .set_default(
             USER_CONFIG_FILE_KEY,
             user_config_file
                 .to_str()
                 .expect("failed to convert to str config file"),
         )
-        .expect("failod to load default config")
+        .expect("failod to load default user config file")
         .add_source(config::File::from(user_config_file).required(false))
         .add_source(config::Environment::with_prefix(APP_NAME));
 
