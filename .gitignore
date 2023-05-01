@@ -1,5 +1,6 @@
 # directories
 target/
+data/
 
 # files
 .envrc
