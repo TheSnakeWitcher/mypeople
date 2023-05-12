@@ -1,3 +1,4 @@
+use clap::ArgMatches;
 use std::collections::HashMap;
 
 pub fn try_parse(val: &mut String) -> Result<HashMap<String, String>, ()> {
@@ -31,4 +32,18 @@ fn try_prepare(arg: &mut String) -> Result<HashMap<String, String>, Box<dyn std:
     };
 
     return Ok(result);
+}
+
+pub fn get_options(sub_matches: &ArgMatches) -> Vec<&str> {
+    let ids = sub_matches
+        .ids()
+        .filter_map(|id| {
+            if id.as_str() != "name" {
+                Some(id.as_str())
+            } else {
+                None
+            }
+        })
+        .collect::<Vec<&str>>();
+    return ids;
 }

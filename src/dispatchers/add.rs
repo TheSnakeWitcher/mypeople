@@ -8,16 +8,7 @@ pub async fn add_cmd_dispatcher(
     name: &str,
     sub_matches: &ArgMatches,
 ) -> Result<(), Error> {
-    let ids = sub_matches
-        .ids()
-        .filter_map(|id| {
-            if id.as_str() != "name" {
-                Some(id.as_str())
-            } else {
-                None
-            }
-        })
-        .collect::<Vec<&str>>();
+    let ids = aux::get_options(sub_matches);
 
     for arg in ids.iter() {
         let mut val = sub_matches.get_one::<String>(arg).unwrap().to_string();

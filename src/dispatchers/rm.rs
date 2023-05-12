@@ -1,3 +1,4 @@
+use super::aux;
 use crate::db;
 use clap::ArgMatches;
 use sqlx::{Error, SqliteConnection};
@@ -7,16 +8,7 @@ pub async fn rm_cmd_dispatcher(
     name: &str,
     sub_matches: &ArgMatches,
 ) -> Result<(), Error> {
-    let ids = sub_matches
-        .ids()
-        .filter_map(|id| {
-            if id.as_str() != "name" {
-                Some(id.as_str())
-            } else {
-                None
-            }
-        })
-        .collect::<Vec<&str>>();
+    let ids = aux::get_options(sub_matches);
 
     if ids.is_empty() {
         db::queries::remove_contact(conn, name).await?;
