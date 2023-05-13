@@ -1,4 +1,3 @@
-// TODO: search clap default_missing_value
 pub mod cli;
 mod configuration;
 pub mod db;
@@ -41,13 +40,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Some(("ls", sub_matches)) => {
             let names = get_names(sub_matches);
 
-            let contacts = if !sub_matches.args_present() || names.is_empty() {
+            let contacts = if names.is_empty() {
                 db::queries::get_all_contacts(&mut conn).await?
             } else {
                 db::queries::get_contacts(&mut conn, names).await?
             };
 
-            dispatchers::ls_cmd_dispatcher(contacts,sub_matches);
+            dispatchers::ls_cmd_dispatcher(contacts, sub_matches);
             return Ok(());
         }
 
