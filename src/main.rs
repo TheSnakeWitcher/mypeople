@@ -1,8 +1,10 @@
+// TODO: search clap default_missing_value
 pub mod cli;
 mod configuration;
 pub mod db;
 pub mod dispatchers;
 
+use clap::ArgMatches;
 use serde_json;
 use sqlx::{Connection, SqliteConnection};
 use std::{env, fs::File, io::Write, path::Path, process::Command};
@@ -12,8 +14,10 @@ const VISUAL: &str = "VISUAL";
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let conf = configuration::init().expect("configuration error");
-    let matches = cli::new().get_matches();
+    let (conf, matches) = (
+        configuration::init().expect("configuration error"),
+        cli::new().get_matches(),
+    );
 
     if let Some(sub_matches) = matches.subcommand_matches("init") {
         if !sub_matches.args_present() {
@@ -35,30 +39,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .expect("failed to set db connection");
     match matches.subcommand() {
         Some(("ls", sub_matches)) => {
-            if !sub_matches.args_present() {
-                let contacts = db::queries::get_all_contacts(&mut conn).await?;
-                println!("{}", contacts);
-                return Ok(());
-            }
+            let names = get_names(sub_matches);
 
-            let names = sub_matches
-                .get_many::<String>("name")
-                .into_iter()
-                .flatten()
-                .collect::<Vec<&String>>();
-            let contacts = db::queries::get_contacts(&mut conn, names).await?;
-            for contact in contacts.iter() {
-                println!("{}", contact);
-            }
+            let contacts = if !sub_matches.args_present() || names.is_empty() {
+                db::queries::get_all_contacts(&mut conn).await?
+            } else {
+                db::queries::get_contacts(&mut conn, names).await?
+            };
+
+            dispatchers::ls_cmd_dispatcher(contacts,sub_matches);
             return Ok(());
         }
 
         Some(("add", sub_matches)) => {
-            let names = sub_matches
-                .get_many::<String>("name")
-                .into_iter()
-                .flatten()
-                .collect::<Vec<&String>>();
+            let names = get_names(sub_matches);
 
             if names.is_empty() {
                 println!("names must be passed");
@@ -75,11 +69,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
 
         Some(("rm", sub_matches)) => {
-            let names = sub_matches
-                .get_many::<String>("name")
-                .into_iter()
-                .flatten()
-                .collect::<Vec<&String>>();
+            let names = get_names(sub_matches);
 
             if names.is_empty() {
                 println!("names must be passed");
@@ -110,7 +100,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 return Ok(())
             };
 
-            let Ok(data) = serde_json::to_string_pretty(
+            let Ok(data) = serde_json::to_string(
                 &db::queries::get_all_contacts(&mut conn).await?
             ) else {
                 println!("failed to convert output data");
@@ -148,4 +138,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("error closing db");
     };
     Ok(())
+}
+
+pub fn get_names(sub_matches: &ArgMatches) -> Vec<&String> {
+    let names = sub_matches
+        .get_many::<String>("name")
+        .into_iter()
+        .flatten()
+        .collect::<Vec<&String>>();
+    return names;
 }
