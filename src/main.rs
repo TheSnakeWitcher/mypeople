@@ -7,6 +7,7 @@ use clap::ArgMatches;
 use serde_json;
 use sqlx::{Connection, SqliteConnection};
 use std::{env, fs::File, io::Write, path::Path, process::Command};
+use console::{Term,Style} ;
 
 const EDITOR: &str = "EDITOR";
 const VISUAL: &str = "VISUAL";
@@ -18,6 +19,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         cli::new().get_matches(),
     );
 
+    let (mut term,error_style) = (
+            Term::stdout(),
+            Style::new().red()
+    );
+
     if let Some(sub_matches) = matches.subcommand_matches("init") {
         if !sub_matches.args_present() {
             db::init(None, &conf).await;
@@ -25,7 +31,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
 
         let Some(path_string) = sub_matches.get_one::<String>("path") else {
-                println!("error parsing path input") ;
+                println!("{}",error_style.apply_to("error parsing path input"));
                 return Ok(())
             } ;
         let path = Path::new(path_string);
@@ -36,6 +42,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn = SqliteConnection::connect(&conf.dbfile)
         .await
         .expect("failed to set db connection");
+
     match matches.subcommand() {
         Some(("ls", sub_matches)) => {
             let names = get_names(sub_matches);
@@ -54,7 +61,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let names = get_names(sub_matches);
 
             if names.is_empty() {
-                println!("names must be passed");
+                println!("{}",error_style.apply_to("error: names must be passed"));
                 return Ok(());
             }
 
@@ -71,13 +78,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let names = get_names(sub_matches);
 
             if names.is_empty() {
-                println!("names must be passed");
+                println!("{}",error_style.apply_to("error: names must be passed"));
                 return Ok(());
             }
 
             for name in names.iter() {
                 if let Err(err) = db::queries::get_contact(&mut conn, name).await {
-                    println!("contact not found");
+                    println!("{}",error_style.apply_to("contact not found"));
                     continue;
                 }
                 dispatchers::rm_cmd_dispatcher(&mut conn, name, &sub_matches).await?;
@@ -90,24 +97,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         Some(("export", sub_matches)) => {
             let Some(path_string) = sub_matches.get_one::<String>("path") else {
-                println!("error parsing path") ;
+                println!("{}",error_style.apply_to("error parsing path"));
                 return Ok(())
             } ;
 
             let Ok(mut file) = File::create(Path::new(path_string)) else {
-                println!("error opening file") ;
+                println!("{}",error_style.apply_to("error opening file"));
                 return Ok(())
             };
 
             let Ok(data) = serde_json::to_string(
                 &db::queries::get_all_contacts(&mut conn).await?
             ) else {
-                println!("failed to convert output data");
+                println!("{}",error_style.apply_to("error read contacts"));
                 return Ok(())
             };
 
             if let Err(err) = file.write_all(&data.as_bytes()) {
-                println!("error writing data to file");
+                println!("{}",error_style.apply_to("error writing data to file"));
             };
 
             return Ok(());
@@ -115,7 +122,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         Some(("config", sub_matches)) => {
             let Ok(editor) = env::var(EDITOR).or(env::var(VISUAL)) else {
-                println!("set $EDITOR or $VISUAL environment variables to edit files");
+                println!("{}",error_style.apply_to("error: set $EDITOR or $VISUAL environment variables to edit files"));
                 return Ok(())
             };
 
@@ -123,7 +130,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .arg(conf.user_config_file)
                 .status()
             else {
-                println!("failed to open user config file");
+                println!("{}",error_style.apply_to("error: failed to open user config file"));
                 return Ok(())
             };
 
@@ -133,8 +140,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         _ => unreachable!(),
     }
 
-    if let Err(err) = conn.close().await {
-        println!("error closing db");
+    if let Err(_) = conn.close().await {
+        println!("{}",error_style.apply_to("error closing db"));
     };
     Ok(())
 }
