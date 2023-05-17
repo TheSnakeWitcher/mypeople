@@ -4,10 +4,11 @@ pub mod db;
 pub mod dispatchers;
 
 use clap::ArgMatches;
-use serde_json;
+use console::{Style, Term};
+use db::queries;
+use serde_json::Value;
 use sqlx::{Connection, SqliteConnection};
-use std::{env, fs::File, io::Write, path::Path, process::Command};
-use console::{Term,Style} ;
+use std::{collections::HashMap, env, fs::File, io::Write, path::Path, process::Command};
 
 const EDITOR: &str = "EDITOR";
 const VISUAL: &str = "VISUAL";
@@ -19,10 +20,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         cli::new().get_matches(),
     );
 
-    let (mut term,error_style) = (
-            Term::stdout(),
-            Style::new().red()
-    );
+    let (mut term, error_style) = (Term::stdout(), Style::new().red());
 
     if let Some(sub_matches) = matches.subcommand_matches("init") {
         if !sub_matches.args_present() {
@@ -48,9 +46,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let names = get_names(sub_matches);
 
             let contacts = if names.is_empty() {
-                db::queries::get_all_contacts(&mut conn).await?
+                queries::get_all_contacts(&mut conn).await?
             } else {
-                db::queries::get_contacts(&mut conn, names).await?
+                queries::get_contacts(&mut conn, names).await?
             };
 
             dispatchers::ls_cmd_dispatcher(contacts, sub_matches);
@@ -61,13 +59,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let names = get_names(sub_matches);
 
             if names.is_empty() {
-                println!("{}",error_style.apply_to("error: names must be passed"));
+                println!("{}", error_style.apply_to("error: names must be passed"));
                 return Ok(());
             }
 
             for name in names.iter() {
-                if db::queries::get_contact(&mut conn, name).await.is_err() {
-                    db::queries::insert_contact(&mut conn, name).await?;
+                if queries::get_contact(&mut conn, name).await.is_err() {
+                    queries::insert_contact(&mut conn, name).await?;
                 }
 
                 dispatchers::add_cmd_dispatcher(&mut conn, name, sub_matches).await?;
@@ -78,13 +76,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let names = get_names(sub_matches);
 
             if names.is_empty() {
-                println!("{}",error_style.apply_to("error: names must be passed"));
+                println!("{}", error_style.apply_to("error: names must be passed"));
                 return Ok(());
             }
 
             for name in names.iter() {
-                if let Err(err) = db::queries::get_contact(&mut conn, name).await {
-                    println!("{}",error_style.apply_to("contact not found"));
+                if let Err(err) = queries::get_contact(&mut conn, name).await {
+                    println!("{}", error_style.apply_to("contact not found"));
                     continue;
                 }
                 dispatchers::rm_cmd_dispatcher(&mut conn, name, &sub_matches).await?;
@@ -92,7 +90,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
 
         Some(("import", sub_matches)) => {
-            todo!()
+            let Some(path) = sub_matches.get_one::<String>("path") else {
+                println!("{}",error_style.apply_to("error parsing path"));
+                return Ok(())
+            } ;
+
+            let Ok(file) = File::open(path) else {
+                println!("{}",error_style.apply_to("error opening file"));
+                return Ok(())
+            };
+
+            let Ok(contacts) = serde_json::from_reader::<File,Value>(file) else {
+                println!("{}", error_style.apply_to("error reading data from file"));
+                return Ok(());
+            };
+            
+            dispatchers::import_cmd_dispatcher(&mut conn,contacts).await ;
         }
 
         Some(("export", sub_matches)) => {
@@ -107,14 +120,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             };
 
             let Ok(data) = serde_json::to_string(
-                &db::queries::get_all_contacts(&mut conn).await?
+                &queries::get_all_contacts(&mut conn).await?
             ) else {
-                println!("{}",error_style.apply_to("error read contacts"));
+                println!("{}",error_style.apply_to("error reading contacts"));
                 return Ok(())
             };
 
             if let Err(err) = file.write_all(&data.as_bytes()) {
-                println!("{}",error_style.apply_to("error writing data to file"));
+                println!("{}", error_style.apply_to("error writing data to file"));
             };
 
             return Ok(());
@@ -141,7 +154,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     if let Err(_) = conn.close().await {
-        println!("{}",error_style.apply_to("error closing db"));
+        println!("{}", error_style.apply_to("error closing db"));
     };
     Ok(())
 }
@@ -154,3 +167,4 @@ pub fn get_names(sub_matches: &ArgMatches) -> Vec<&String> {
         .collect::<Vec<&String>>();
     return names;
 }
+
