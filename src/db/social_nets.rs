@@ -1,11 +1,10 @@
-use super::aux::to_sqlite_json_key;
+use super::util::to_sqlite_json_key;
 use sqlx::{
     query,
     sqlite::{SqliteConnection, SqliteQueryResult},
     Error,
 };
 use std::collections::HashMap;
-
 
 pub async fn insert_social_nets(
     conn: &mut SqliteConnection,
@@ -31,12 +30,13 @@ pub async fn insert_social_net(
 ) -> Result<SqliteQueryResult, Error> {
     let key = to_sqlite_json_key(&social_net_key);
 
-    let output = query("UPDATE contacts SET social_nets = json_insert(social_nets,?,?) WHERE name = ? ;")
-        .bind(key)
-        .bind(social_net_val)
-        .bind(name)
-        .execute(conn)
-        .await?;
+    let output =
+        query("UPDATE contacts SET social_nets = json_insert(social_nets,?,?) WHERE name = ? ;")
+            .bind(key)
+            .bind(social_net_val)
+            .bind(name)
+            .execute(conn)
+            .await?;
 
     return Ok(output);
 }
@@ -48,11 +48,12 @@ pub async fn remove_social_net(
 ) -> Result<SqliteQueryResult, Error> {
     let key = to_sqlite_json_key(&social_net);
 
-    let output = query("UPDATE contacts SET social_nets = json_remove(social_nets,?) WHERE name = ? ;")
-        .bind(key)
-        .bind(name)
-        .execute(conn)
-        .await?;
+    let output =
+        query("UPDATE contacts SET social_nets = json_remove(social_nets,?) WHERE name = ? ;")
+            .bind(key)
+            .bind(name)
+            .execute(conn)
+            .await?;
 
     return Ok(output);
 }

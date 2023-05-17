@@ -1,10 +1,10 @@
-mod aux;
 mod contacts;
 mod emails;
 mod groups;
 mod phones;
 mod pic;
 mod social_nets;
+mod util;
 mod wallets;
 
 pub mod queries;
@@ -16,7 +16,7 @@ use std::{
     process::Command,
 };
 
-pub async fn init(path: Option<&Path>,conf: &Conf) -> Result<(),()> {
+pub async fn init(path: Option<&Path>, conf: &Conf) -> Result<(), ()> {
     let cmd: &str = "CREATE TABLE IF NOT EXISTS contacts (
         id          INTEGER PRIMARY KEY NOT NULL,
         name        TEXT NOT NULL,

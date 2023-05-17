@@ -1,4 +1,4 @@
-use super::aux::to_sqlite_json_key;
+use super::util::to_sqlite_json_key;
 use sqlx::{
     query,
     sqlite::{SqliteConnection, SqliteQueryResult},
