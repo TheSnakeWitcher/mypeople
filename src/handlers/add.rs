@@ -1,14 +1,14 @@
-use super::aux;
+use super::util;
 use crate::db;
 use clap::ArgMatches;
 use sqlx::{Error, SqliteConnection};
 
-pub async fn add_cmd_dispatcher(
+pub async fn add_cmd_handler(
     conn: &mut SqliteConnection,
     name: &str,
     sub_matches: &ArgMatches,
 ) -> Result<(), Error> {
-    let ids = aux::get_options(sub_matches);
+    let ids = util::get_options(sub_matches);
 
     for arg in ids.iter() {
         let mut val = sub_matches.get_one::<String>(arg).unwrap().to_string();
@@ -29,7 +29,7 @@ pub async fn add_cmd_dispatcher(
             }
 
             "phones" => {
-                let Ok(insert_val) = aux::try_parse(&mut val) else {
+                let Ok(insert_val) = util::try_parse(&mut val) else {
                     println!("invalid format of phones args passed");
                     return Ok(())
                 } ;
@@ -43,7 +43,7 @@ pub async fn add_cmd_dispatcher(
             }
 
             "emails" => {
-                let Ok(insert_val) = aux::try_parse(&mut val) else {
+                let Ok(insert_val) = util::try_parse(&mut val) else {
                     println!("invalid format of emails args passed");
                     return Ok(())
                 } ;
@@ -57,7 +57,7 @@ pub async fn add_cmd_dispatcher(
             }
 
             "social_nets" => {
-                let Ok(insert_val) = aux::try_parse(&mut val) else {
+                let Ok(insert_val) = util::try_parse(&mut val) else {
                     println!("invalid format of social_nets args passed");
                     return Ok(())
                 } ;
@@ -71,7 +71,7 @@ pub async fn add_cmd_dispatcher(
             }
 
             "wallets" => {
-                let Ok(insert_val) = aux::try_parse(&mut val) else {
+                let Ok(insert_val) = util::try_parse(&mut val) else {
                     println!("invalid format of wallets args passed");
                     return Ok(())
                 } ;
