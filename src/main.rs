@@ -1,14 +1,14 @@
 pub mod cli;
 mod configuration;
 pub mod db;
-pub mod dispatchers;
+pub mod handlers;
 
 use clap::ArgMatches;
 use console::{Style, Term};
 use db::queries;
 use serde_json::Value;
 use sqlx::{Connection, SqliteConnection};
-use std::{collections::HashMap, env, fs::File, io::Write, path::Path, process::Command};
+use std::{env, fs::File, io::Write, path::Path, process::Command};
 
 const EDITOR: &str = "EDITOR";
 const VISUAL: &str = "VISUAL";
@@ -51,7 +51,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 queries::get_contacts(&mut conn, names).await?
             };
 
-            dispatchers::ls_cmd_dispatcher(contacts, sub_matches);
+            handlers::ls_cmd_handler(contacts, sub_matches);
             return Ok(());
         }
 
@@ -68,7 +68,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     queries::insert_contact(&mut conn, name).await?;
                 }
 
-                dispatchers::add_cmd_dispatcher(&mut conn, name, sub_matches).await?;
+                handlers::add_cmd_handler(&mut conn, name, sub_matches).await?;
             }
         }
 
@@ -85,7 +85,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     println!("{}", error_style.apply_to("contact not found"));
                     continue;
                 }
-                dispatchers::rm_cmd_dispatcher(&mut conn, name, &sub_matches).await?;
+                handlers::rm_cmd_handler(&mut conn, name, &sub_matches).await?;
             }
         }
 
@@ -104,8 +104,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 println!("{}", error_style.apply_to("error reading data from file"));
                 return Ok(());
             };
-            
-            dispatchers::import_cmd_dispatcher(&mut conn,contacts).await ;
+
+            handlers::import_cmd_handler(&mut conn, contacts).await;
         }
 
         Some(("export", sub_matches)) => {
@@ -167,4 +167,3 @@ pub fn get_names(sub_matches: &ArgMatches) -> Vec<&String> {
         .collect::<Vec<&String>>();
     return names;
 }
-
