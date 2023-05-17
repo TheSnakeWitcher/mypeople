@@ -1,10 +1,11 @@
 mod add;
 mod args;
+mod config;
 mod export;
+mod import;
 mod init;
 mod ls;
 mod rm;
-mod config;
 
 pub use clap;
 use clap::Command;
@@ -20,6 +21,7 @@ pub fn new() -> Command {
         .allow_external_subcommands(true)
         .subcommand(init::new())
         .subcommand(export::new())
+        .subcommand(import::new())
         .subcommand(ls::new())
         .subcommand(add::new())
         .subcommand(rm::new())
