@@ -109,12 +109,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
 
         Some(("export", sub_matches)) => {
-            let Some(path_string) = sub_matches.get_one::<String>("path") else {
+            let Some(path) = sub_matches.get_one::<String>("path") else {
                 println!("{}",error_style.apply_to("error parsing path"));
                 return Ok(())
             } ;
 
-            let Ok(mut file) = File::create(Path::new(path_string)) else {
+            let Ok(mut file) = File::create(path) else {
                 println!("{}",error_style.apply_to("error opening file"));
                 return Ok(())
             };
