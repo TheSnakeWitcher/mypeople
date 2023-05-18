@@ -16,7 +16,7 @@ use std::{
     process::Command,
 };
 
-pub async fn init(path: Option<&Path>, conf: &Conf) -> Result<(), ()> {
+pub async fn init(path: Option<&Path>, conf: &Conf) {
     let cmd: &str = "CREATE TABLE IF NOT EXISTS contacts (
         id          INTEGER PRIMARY KEY NOT NULL,
         name        TEXT NOT NULL,
@@ -35,6 +35,4 @@ pub async fn init(path: Option<&Path>, conf: &Conf) -> Result<(), ()> {
         .arg(path.unwrap_or(&PathBuf::from(conf.dbfile.to_lowercase())))
         .args(["--cmd", cmd])
         .output();
-
-    return Ok(());
 }
