@@ -28,13 +28,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             return Ok(());
         }
 
-        let Some(path_string) = sub_matches.get_one::<String>("path") else {
-                println!("{}",error_style.apply_to("error parsing path input"));
-                return Ok(())
+        let path = {
+            let Some(path_string) = sub_matches.get_one::<String>("path") else {
+                    println!("{}",error_style.apply_to("error parsing path input"));
+                    return Ok(())
             } ;
-        let path = Path::new(path_string);
+            Path::new(path_string)
+        };
 
-        db::init(Some(&path), &conf).await;
+        db::init(Some(path), &conf).await;
+        return Ok(())
     }
 
     let mut conn = SqliteConnection::connect(&conf.dbfile)
@@ -85,7 +88,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     println!("{}", error_style.apply_to("contact not found"));
                     continue;
                 }
-                handlers::rm_cmd_handler(&mut conn, name, &sub_matches).await?;
+                handlers::rm_cmd_handler(&mut conn, name, sub_matches).await?;
             }
         }
 
