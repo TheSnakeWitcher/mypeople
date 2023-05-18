@@ -34,7 +34,9 @@ pub async fn import_cmd_handler(conn: &mut sqlx::SqliteConnection, contacts: ser
                         println!( "error to get {} value",option);
                         continue
                     };
-                    queries::insert_groups(conn, &name, value).await;
+
+                    // skip group `all` at index 0 added automatically when called `insert_contact`
+                    queries::insert_groups(conn, &name, &value[1..]).await;
                 }
 
                 "phones" => {
