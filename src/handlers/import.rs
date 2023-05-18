@@ -29,6 +29,14 @@ pub async fn import_cmd_handler(conn: &mut sqlx::SqliteConnection, contacts: ser
                     };
                 }
 
+                "groups" => {
+                    let Some(value) = contact.get(option).and_then(|option| option.as_array()) else {
+                        println!( "error to get {} value",option);
+                        continue
+                    };
+                    queries::insert_groups(conn, &name, value).await;
+                }
+
                 "phones" => {
                     let Ok(value) = util::get_option_value(&contact,option) else {
                         continue
