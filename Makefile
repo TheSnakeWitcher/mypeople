@@ -2,13 +2,13 @@ release:
 	cargo build --release
 
 build:
-	cargo build --offline
+	cargo build
 
 run:
-	cargo run --offline
+	cargo run
 
 test:
-	cargo test --offline
+	cargo test
 
 doc:
-	cargo doc --offline
+	cargo doc
