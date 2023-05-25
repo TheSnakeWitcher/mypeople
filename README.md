@@ -74,10 +74,13 @@ mypeople rm contact_name -e email_label -p phone_label
 # Installation 
 
 
-### From source
+Only available in linux for now. Check 
+[https://github.com/TheSnakeWitcher/mypeople/releases](releases)
+or install from source running this on your terminal.
 
 ```sh
 git clone github.com/TheSnakeWitcher/mypeople
+cd mypeople
 make release
 ```
 
