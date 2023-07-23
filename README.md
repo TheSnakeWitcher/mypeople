@@ -24,7 +24,7 @@ book because i find the last more intuitive.
 ### init command
 
 ```sh
-# init db in default dir $HOME/.cache/mypeople/mypeople.db
+# init db in default dir $HOME/.local/share/mypeople/mypeople.db
 mypeople init
 
 # init db in path
@@ -90,7 +90,7 @@ make release
 
 ```sh
 mkdir -p $HOME/.config/mypeople/mypeople.toml  # create config file
-mkdir -p $HOME/.cache/mypeople                 # create cache directory for store db
+mkdir -p $HOME/.local/share/mypeople           # create data directory for store db
 ```
 
 Config file `mypeople.toml` only support `dbfile`
