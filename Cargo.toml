@@ -26,27 +26,10 @@ insta = "1.29.0"
 trycmd = "0.14.16"
 
 [profile.dev]
-# options:
-# 0: no optimization
-# 1: basic optimization
-# 2: someoptimization
-# 3: all optimization
-# 's' : optimize' for binary size 
-# 'z' : optimize for binary size and also remove vectorization
 opt-level = 0 
-
-# options:
-# 0/false: no debuf info
-# 1: line tables only
-# 2/true: full debug info
 debug = true
-
-# options:
-# none/false
-# debuginfo
-# symbols/true
 strip = "none"
-split-debuginfo = '...'  # platform-specific.
+split-debuginfo = '...'
 debug-assertions = true
 overflow-checks = true
 lto = false
@@ -55,8 +38,8 @@ incremental = true
 codegen-units = 256
 rpath = false
 
-# [profile.test]
-# inherits = "dev"
+[profile.test]
+inherits = "dev"
 
 [profile.release]
 debug-assertions = false
@@ -67,19 +50,3 @@ lto = true          # enable link-time optimization,options: "fat","thin"
 opt-level = 's'     # optimize for size without removing vectorization
 panic = "abort"     # abort on panic(not need to catch or unwind panics)
 codegen-units = 1   # reduce number of codegen units to increase optimizations
-# rustflags = []
-
-# [llvm]
-# # Pass extra compiler and linker flags to the LLVM CMake build.
-# # <PROFDATA_DIR> must be an absolute path to a writeable
-# # directory, like for example /tmp/my-rustc-profdata
-# cflags = "-fprofile-generate=<PROFDATA_DIR>" # tell clang to create an instrumented binary(a binary that collect data of his excution) to be optimized later in the actual release
-# cxxflags = "-fprofile-generate=<PROFDATA_DIR>"
-#
-# link-shared = true    # make sure that LLVM is built as a dylib(ensure rustc linker doesn't have to deal with linking instrumentation runtime into C++ code)
-#
-# # ensure we use Clang for compiling LLVM
-# [target.x86_64-unknown-linux-gnu]
-# cc = "clang"
-# cxx = "clang++"
-# linker = "clang"
