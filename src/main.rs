@@ -2,16 +2,14 @@ pub mod cli;
 mod configuration;
 pub mod db;
 pub mod handlers;
+mod util ;
 
-use clap::ArgMatches;
 use console::{Style, Term};
 use db::queries;
 use serde_json::Value;
 use sqlx::{Connection, SqliteConnection};
 use std::{env, fs::File, io::Write, path::Path, process::Command};
-
-const EDITOR: &str = "EDITOR";
-const VISUAL: &str = "VISUAL";
+use util::get_names ;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -37,7 +35,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         };
 
         db::init(Some(path), &conf).await;
-        return Ok(())
+        return Ok(());
     }
 
     let mut conn = SqliteConnection::connect(&conf.dbfile)
@@ -137,7 +135,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
 
         Some(("config", sub_matches)) => {
-            let Ok(editor) = env::var(EDITOR).or(env::var(VISUAL)) else {
+            let Ok(editor) = env::var("EDITOR").or(env::var("VISUAL")) else {
                 println!("{}",error_style.apply_to("error: set $EDITOR or $VISUAL environment variables to edit files"));
                 return Ok(())
             };
@@ -162,11 +160,3 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-pub fn get_names(sub_matches: &ArgMatches) -> Vec<&String> {
-    let names = sub_matches
-        .get_many::<String>("name")
-        .into_iter()
-        .flatten()
-        .collect::<Vec<&String>>();
-    return names;
-}
